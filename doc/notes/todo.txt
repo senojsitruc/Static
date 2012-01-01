@@ -1,0 +1,150 @@
+tune the data to frequence
+	quisk.c:346
+	
+	tunePhase = cexp((I * -2.0 * M_PI * rx_tune_freq) / sample_rate);
+		
+	// Tune the data to frequency
+	if (tunePhase) {
+		for (i = 0; i < nSamples; i++) {
+			cSamples[i] *= tuneVector;
+			tuneVector *= tunePhase;
+		}
+	}
+
+
+
+squelch: dsp/other? dsp/filter?
+wwvd demodulation (time code format)
+
+
+
+2010-01-16: device: since "device" is pretty much synonymous with "input", create a faux device
+            that reads from a previously saved output file. this device will either (or both) need
+						to be 1) configurable with a specific read-speed setting, and/or 2) need to provide a
+						timeline control. oh. the output file itself includes timestamp information, and the
+						file reader device honors that timing information.
+
+2010-11-22: dsp/fft/apple-fft: add support for accelerate.framework fft (vDSP)
+
+2010-01-15: dsp/filter/chebyshev: use main.c to loop on chebyshev_reset() and test various 
+            optimizations to the chebyshev coefficient generation implementation.
+
+
+
+
+
+2010-02-06: misc/mem/opool: give opool_t the ability to actually clean up all of their memory and 
+            fully deallocate. only if all of their objects have been push()'ed back onto the pool.
+						this also means that we need to keep track of the block pointers, which we're not doing
+						presently.
+
+
+
+
+
+2010-01-14: output/audio: should support two modes. locked: does not vary the center frequency, and
+            floating: which tracks the highest point nearest the current center frequency, and will
+						drift to follow a distinct singal's change in frequency (ie, doppler shift).
+
+2010-01-10: output/audio: amplitude-over-time display for each audio output point.
+
+2010-01-10: output/audio: per-audio-output smeter.
+
+2010-02-10: output/dataobject: add a timestamp to the data object. maybe this way some dsp stuff can
+            make up for "jitter" associated with cpu load by either carefully dropping packets or
+						processing them at the time at which they were received. this seems especially 
+						applicable to the history graph.
+
+2010-01-10: output/file: design an output file format for saving I/Q data. format should include a 
+            header which indicates the time start, and each block should include a time increment - 
+						or something like that. support various file formats. initially: delimited, xml, json, 
+						binary
+
+2010-01-16: output/graph: should have an "error" callback that the graph_t or underlying graph can
+            use to report errors back to whomever is using the graph.
+
+2010-01-10: output/graph/history: the "high" level should decay towards "low"; and "low" should 
+            decay towards "high". multiply by 0.01 and 1.01, respectively, for each feed() call? or
+            perhaps for each draw() call?
+
+2010-01-18: output/graph/planar: use core text instead of the core graphics stuff, to calculate the
+            width of the text that we draw onto the graph.
+
+2010-01-10: output/net: send output over the network. does this need to be output-type specific
+            somehow? like, how we send audio output will undoubtedly be different than, say, raw or
+            graph output. hmm. support various protocols. note whether it is a tcp or udp protocol.
+
+
+
+
+
+2010-01-13: platform: the various output windows should "snap" to each other and to the edges of the
+            display.
+
+2010-01-10: platform/cocoa/graph: right-click on a graph to configure it.
+
+
+
+
+
+2010-01-10: protocol/ascp: handle ascp protocol errors (0x0005) from the sdr-iq, and more generally,
+            handle errors from devices.
+
+2010-01-10: protocol/ascp: when we encounter a sync issue when streaming data, find the next 0x0080
+            and also look forward past the 8192 byte data block and make sure that the values 
+            immediately following it look like a valid message. if they don't, then scan for the
+            next 0x0080 and try again.
+
+
+
+
+
+----- DONE -----------------------------------------------------------------------------------------
+
+2010-01-14: device/sdriq: instead of converting the int16_t's to double's in __sdriq_message_read,
+            rely on the dsp_t chain to do so. create something akin to a int16-to-double dsp_t.
+
+2010-01-10: device/sdriq: somehow the sdriq_t device should use data blocks from an opool_t. and the
+            data blocks should be queued up for processing - by the various graphs and demodulators.
+
+
+
+
+
+2010-01-16: dsp: add an "enabled" member to the struct, and make dspchain skip any dsp_t's that are
+						not marked as enabled. set enabled to true by default.
+
+
+
+
+
+2010-01-15: misc/mem/opool: investigate replacing its single-linked-list implementation with flist,
+            or with its own flist-like implementation ... such that we can do away with mutexes.
+
+
+
+
+
+2010-01-10: output/graph: one thread per graph. but how do we know when we can safely discard a
+            data block? push each data block onto each thread's incoming-data-block queue?
+
+2010-01-10: output/graph/history: do all of the color computation in the feed() thread, starting
+            with the slot preceding the current time slot. make the draw() thread do as little as
+            possible.
+
+2010-01-12: output/graph/history: create a 2d uint32_t array for the history graph image that is 
+            considerably taller than it needs to be. start with the window at the bottom, and move
+            up. only memcpy() once we reach the top.
+
+2010-01-16: output/graph/planar: mouse tracking. the cocoa class sends x,y coordinates to the graph
+            corresponding to the mouse's position in the graph. the graph draws x-axis and y-axis
+						lines through that point. the lines should probably be partially transparent. do we also
+						show some tool-tip text? what about a little icon-pointer-thing that rests on top of the
+						signal at that point? the line should fade-in and fade-out, based on setting a timer,
+						and each time we re-draw, check with the timer to see how opaque the line should be.
+
+2010-01-18: output/graph/planar: add fade-in/fade-out controls to the view
+
+2010-01-18: output/graph/planar: drag the mouse to adjust the frequency
+
+2010-11-19: driver/ftdi: replace ftdx with the open source libftdi

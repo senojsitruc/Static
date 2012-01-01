@@ -1,0 +1,27 @@
+
+[Credits]
+
+	Code
+		ooura - fft
+		libftdi / libusb / ftd2xx
+		sqlite (?)
+	
+	Apple
+		Accelerate.framework
+		Core Audio
+		Core Graphics
+	
+	Programs
+		quisk
+		linrad (?)
+
+	Reference
+		Understanding Digital Signal Processing (Richard G. Lyons)
+		Digital Signal Processing: A Practical Guide for Scientists and Engineers (Steven W. Smith)
+			And the associated website: dspguide.com
+	
+	People
+		John Bordelon
+		Kwynn Buess
+		Jason Easterman
+		Rob Osattin
